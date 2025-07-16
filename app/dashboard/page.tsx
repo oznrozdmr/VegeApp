@@ -49,8 +49,8 @@ export default function DashboardPage() {
       <div className="max-w-md mx-auto px-4 py-6">
         {/* Search Bar */}
         <Link href="/search">
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6 cursor-pointer">
-            <div className="flex items-center gap-3 text-gray-500">
+          <div className="bg-orange-200 rounded-2xl p-4 shadow-sm border border-gray-100 mb-6 cursor-pointer">
+            <div className="flex items-center gap-3 text-black">
               <i className="ri-search-line text-xl"></i>
               <span>Search recipes or ingredients...</span>
             </div>

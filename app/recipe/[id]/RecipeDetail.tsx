@@ -151,6 +151,56 @@ export default function RecipeDetail({ recipeId }: { recipeId: string }) {
     setIsLiked(!isLiked);
   };
 
+  const printRecipe = () => {
+    const printContent = `
+      <html>
+        <head>
+          <title>${recipe.title}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1 { color: #333; }
+            .info { margin: 20px 0; }
+            .ingredients, .instructions { margin: 20px 0; }
+            .ingredient { margin: 5px 0; }
+            .instruction { margin: 10px 0; }
+            .nutrition { background: #f5f5f5; padding: 15px; margin: 20px 0; }
+          </style>
+        </head>
+        <body>
+          <h1>${recipe.title}</h1>
+          <div class="info">
+            <p><strong>Time:</strong> ${recipe.time}</p>
+            <p><strong>Difficulty:</strong> ${recipe.difficulty}</p>
+            <p><strong>Servings:</strong> ${recipe.servings}</p>
+            <p><strong>Type:</strong> ${recipe.type}</p>
+          </div>
+          <div class="nutrition">
+            <h3>Nutrition (per serving)</h3>
+            <p>Calories: ${recipe.nutrition.calories}</p>
+            <p>Protein: ${recipe.nutrition.protein}</p>
+            <p>Carbs: ${recipe.nutrition.carbs}</p>
+            <p>Fat: ${recipe.nutrition.fat}</p>
+          </div>
+          <div class="ingredients">
+            <h3>Ingredients</h3>
+            ${recipe.ingredients.map(ingredient => `<div class="ingredient">• ${ingredient}</div>`).join('')}
+          </div>
+          <div class="instructions">
+            <h3>Instructions</h3>
+            ${recipe.instructions.map((instruction, index) => `<div class="instruction">${index + 1}. ${instruction}</div>`).join('')}
+          </div>
+        </body>
+      </html>
+    `;
+    
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.print();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header Image */}
@@ -302,12 +352,17 @@ export default function RecipeDetail({ recipeId }: { recipeId: string }) {
               Start Cooking
             </button>
           </Link>
-          <button className="w-12 h-12 bg-gray-100 text-gray-600 rounded-xl flex items-center justify-center hover:bg-gray-200 cursor-pointer">
+          <button 
+            onClick={printRecipe}
+            className="w-12 h-12 bg-gray-100 text-gray-600 rounded-xl flex items-center justify-center hover:bg-gray-200 cursor-pointer"
+          >
             <i className="ri-printer-line"></i>
           </button>
-          <button className="w-12 h-12 bg-gray-100 text-gray-600 rounded-xl flex items-center justify-center hover:bg-gray-200 cursor-pointer">
+
+          {/* <button className="w-12 h-12 bg-gray-100 text-gray-600 rounded-xl flex items-center justify-center hover:bg-gray-200 cursor-pointer">
             <i className="ri-shopping-cart-line"></i>
-          </button>
+          </button> */}
+          
         </div>
       </div>
 
