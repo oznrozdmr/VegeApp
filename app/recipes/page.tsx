@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import BottomNavigation from '../../components/BottomNavigation';
 import { useLanguage } from '../../lib/LanguageContext';
@@ -18,6 +18,18 @@ export default function RecipesPage() {
   }
   const [activeTab, setActiveTab] = useState('saved');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '',
+    prepTime: '',
+    difficulty: 'Kolay',
+    ingredients: '',
+    instructions: '',
+    image: ''
+  });
+  const [showDifficultyDropdown, setShowDifficultyDropdown] = useState(false);
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState<any>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const savedRecipes = [
     {
@@ -46,7 +58,7 @@ export default function RecipesPage() {
     }
   ];
 
-  const myRecipes = [
+  const [myRecipes, setMyRecipes] = useState([
     {
       id: 4,
       title: 'Grandmas Veggie Stew',
@@ -63,9 +75,130 @@ export default function RecipesPage() {
       difficulty: 'Easy',
       saved: false
     }
-  ];
+  ]);
 
   const currentRecipes = activeTab === 'saved' ? savedRecipes : myRecipes;
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate form data
+    if (!formData.title.trim() || !formData.ingredients.trim() || !formData.instructions.trim()) {
+      alert('Lütfen tüm gerekli alanları doldurun!');
+      return;
+    }
+
+    // Create new recipe
+    const newRecipe = {
+      id: Date.now(), // Simple ID generation
+      title: formData.title,
+      image: formData.image || 'https://readdy.ai/api/search-image?query=Delicious%20vegan%20recipe%20with%20fresh%20ingredients%2C%20colorful%20vegetables%2C%20healthy%20meal%2C%20natural%20lighting%2C%20appetizing%20food%20photography&width=300&height=200&seq=newrecipe&orientation=landscape',
+      time: formData.prepTime,
+      difficulty: formData.difficulty,
+      saved: false
+    };
+
+    // Add to my recipes (in a real app, this would be saved to a database)
+    setMyRecipes(prev => [...prev, newRecipe]);
+    
+    // Reset form and close modal
+    setFormData({
+      title: '',
+      prepTime: '',
+      difficulty: 'Kolay',
+      ingredients: '',
+      instructions: '',
+      image: ''
+    });
+    setShowAddForm(false);
+    setActiveTab('my'); // Switch to "My Recipes" tab to show the new recipe
+    
+    // Show success message
+    alert('Tarif başarıyla eklendi!');
+  };
+
+  const handleShareRecipe = (recipe: any) => {
+    const shareData = {
+      title: recipe.title,
+      text: `${recipe.title} tarifini VegeApp'te keşfedin!`,
+      url: `${window.location.origin}/recipe/${recipe.id}`
+    };
+
+    // Try to use native Web Share API
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      navigator.share(shareData)
+        .then(() => {
+          console.log('Tarif başarıyla paylaşıldı!');
+        })
+        .catch((error) => {
+          console.log('Paylaşım iptal edildi:', error);
+        });
+    } else {
+      // Fallback: copy to clipboard
+      const shareText = `${recipe.title}\n\nBu lezzetli tarifi VegeApp'te bulabilirsiniz: ${window.location.origin}/recipe/${recipe.id}`;
+      
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(shareText)
+          .then(() => {
+            alert('Tarif linki panoya kopyalandı!');
+          })
+          .catch(() => {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = shareText;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert('Tarif linki panoya kopyalandı!');
+          });
+      } else {
+        // Final fallback
+        const textArea = document.createElement('textarea');
+        textArea.value = shareText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('Tarif linki panoya kopyalandı!');
+      }
+    }
+  };
+
+  const handleMoreOptions = (recipe: any) => {
+    setSelectedRecipe(recipe);
+    setShowMoreOptions(true);
+  };
+
+  const handleToggleFavorite = (recipe: any) => {
+    // Toggle favorite status
+    if (recipe.saved) {
+      // Remove from saved
+      alert(`${recipe.title} favorilerden çıkarıldı`);
+    } else {
+      // Add to saved
+      alert(`${recipe.title} favorilere eklendi`);
+    }
+  };
+
+  const handleEditRecipe = (recipe: any) => {
+    alert(`${recipe.title} düzenleme özelliği yakında gelecek!`);
+  };
+
+  const handleDeleteRecipe = (recipe: any) => {
+    if (confirm(`${recipe.title} tarifini silmek istediğinizden emin misiniz?`)) {
+      // Remove from my recipes
+      setMyRecipes(prev => prev.filter(r => r.id !== recipe.id));
+      alert('Tarif silindi!');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -143,7 +276,7 @@ export default function RecipesPage() {
                       <button
                         onClick={(e) => {
                           e.preventDefault();
-                          // Handle share functionality
+                          handleShareRecipe(recipe);
                         }}
                         className="w-8 h-8 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center hover:bg-gray-200 cursor-pointer"
                       >
@@ -152,7 +285,7 @@ export default function RecipesPage() {
                       <button
                         onClick={(e) => {
                           e.preventDefault();
-                          // Handle more options functionality
+                          handleMoreOptions(recipe);
                         }}
                         className="w-8 h-8 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center hover:bg-gray-200 cursor-pointer"
                       >
@@ -191,8 +324,14 @@ export default function RecipesPage() {
 
       {/* Add Recipe Modal */}
       {showAddForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-end z-50">
-          <div className="bg-white rounded-t-3xl w-full max-w-md mx-auto p-6 max-h-[80vh] overflow-y-auto">
+        <div 
+          className="fixed inset-0 bg-black/50 flex items-end z-50"
+          onClick={() => setShowAddForm(false)}
+        >
+          <div 
+            className="bg-white rounded-t-3xl w-full max-w-md mx-auto p-6 max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-gray-800">Yeni Tarif Ekle</h2>
               <button
@@ -203,14 +342,73 @@ export default function RecipesPage() {
               </button>
             </div>
 
-            <form className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Tarif Adı</label>
                 <input
                   type="text"
+                  value={formData.title}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
                   placeholder="Tarif adını girin"
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                  required
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Tarif Resmi</label>
+                <div className="space-y-3">
+                  {formData.image && (
+                    <div className="relative">
+                      <img
+                        src={formData.image}
+                        alt="Recipe preview"
+                        className="w-full h-32 object-cover rounded-xl border border-gray-300"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleInputChange('image', '')}
+                        className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600"
+                      >
+                        <i className="ri-close-line text-xs"></i>
+                      </button>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="url"
+                      value={formData.image}
+                      onChange={(e) => handleInputChange('image', e.target.value)}
+                      placeholder="Resim URL'si ekleyin (isteğe bağlı)"
+                      className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="px-4 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 flex items-center gap-2"
+                    >
+                      <i className="ri-image-add-line"></i>
+                      <span className="text-sm">Yükle</span>
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            const result = event.target?.result as string;
+                            handleInputChange('image', result);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -218,6 +416,8 @@ export default function RecipesPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Hazırlık Süresi</label>
                   <input
                     type="text"
+                    value={formData.prepTime}
+                    onChange={(e) => handleInputChange('prepTime', e.target.value)}
                     placeholder="20 dk"
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
@@ -225,10 +425,32 @@ export default function RecipesPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Zorluk</label>
                   <div className="relative">
-                    <button className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-left pr-8 cursor-pointer">
-                      Kolay
+                    <button
+                      type="button"
+                      onClick={() => setShowDifficultyDropdown(!showDifficultyDropdown)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-left pr-8 cursor-pointer"
+                    >
+                      {formData.difficulty}
                     </button>
                     <i className="ri-arrow-down-s-line absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    
+                    {showDifficultyDropdown && (
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-xl shadow-lg z-10">
+                        {['Kolay', 'Orta', 'Zor'].map((difficulty) => (
+                          <button
+                            key={difficulty}
+                            type="button"
+                            onClick={() => {
+                              handleInputChange('difficulty', difficulty);
+                              setShowDifficultyDropdown(false);
+                            }}
+                            className="w-full px-4 py-3 text-left hover:bg-gray-50 first:rounded-t-xl last:rounded-b-xl"
+                          >
+                            {difficulty}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -236,18 +458,24 @@ export default function RecipesPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Malzemeler</label>
                 <textarea
+                  value={formData.ingredients}
+                  onChange={(e) => handleInputChange('ingredients', e.target.value)}
                   placeholder="Malzemelerinizi listeleyin..."
                   rows={3}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                  required
                 ></textarea>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Hazırlanışı</label>
                 <textarea
+                  value={formData.instructions}
+                  onChange={(e) => handleInputChange('instructions', e.target.value)}
                   placeholder="Pişirme adımlarını açıklayın..."
                   rows={4}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                  required
                 ></textarea>
               </div>
 
@@ -258,6 +486,83 @@ export default function RecipesPage() {
                 Tarifi Kaydet
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* More Options Modal */}
+      {showMoreOptions && selectedRecipe && (
+        <div 
+          className="fixed inset-0 bg-black/50 flex items-end z-50"
+          onClick={() => setShowMoreOptions(false)}
+        >
+          <div 
+            className="bg-white rounded-t-3xl w-full max-w-md mx-auto p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-800">{selectedRecipe.title}</h2>
+              <button
+                onClick={() => setShowMoreOptions(false)}
+                className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 cursor-pointer"
+              >
+                <i className="ri-close-line text-gray-600"></i>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <button
+                onClick={() => {
+                  handleToggleFavorite(selectedRecipe);
+                  setShowMoreOptions(false);
+                }}
+                className="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-gray-50 cursor-pointer"
+              >
+                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                  <i className={`${selectedRecipe.saved ? 'ri-heart-fill text-red-500' : 'ri-heart-line text-red-500'}`}></i>
+                </div>
+                <div className="flex-1 text-left">
+                  <h3 className="font-semibold text-gray-800">
+                    {selectedRecipe.saved ? 'Favorilerden Çıkar' : 'Favorilere Ekle'}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {selectedRecipe.saved ? 'Bu tarifi favorilerden kaldır' : 'Bu tarifi favorilerinize ekleyin'}
+                  </p>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  handleEditRecipe(selectedRecipe);
+                  setShowMoreOptions(false);
+                }}
+                className="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-gray-50 cursor-pointer"
+              >
+                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                  <i className="ri-edit-line text-blue-500"></i>
+                </div>
+                <div className="flex-1 text-left">
+                  <h3 className="font-semibold text-gray-800">Düzenle</h3>
+                  <p className="text-sm text-gray-600">Tarif bilgilerini düzenleyin</p>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  handleDeleteRecipe(selectedRecipe);
+                  setShowMoreOptions(false);
+                }}
+                className="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-red-50 cursor-pointer"
+              >
+                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                  <i className="ri-delete-bin-line text-red-500"></i>
+                </div>
+                <div className="flex-1 text-left">
+                  <h3 className="font-semibold text-gray-800">Sil</h3>
+                  <p className="text-sm text-gray-600">Bu tarifi kalıcı olarak silin</p>
+                </div>
+              </button>
+            </div>
           </div>
         </div>
       )}
