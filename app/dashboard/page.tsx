@@ -3,8 +3,18 @@
 
 import Link from 'next/link';
 import BottomNavigation from '../../components/BottomNavigation';
+import { useLanguage } from '../../lib/LanguageContext';
 
 export default function DashboardPage() {
+  let t;
+  try {
+    const languageContext = useLanguage();
+    t = languageContext.t;
+  } catch (error) {
+    // Fallback to Turkish translations if context is not available
+    const { translations } = require('../../lib/translations');
+    t = translations.tr;
+  }
   const recentRecipes = [
     {
       id: 1,
@@ -35,8 +45,8 @@ export default function DashboardPage() {
       <header className="bg-white shadow-sm">
         <div className="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-800">Good Morning!</h1>
-            <p className="text-sm text-gray-600">What are you cooking today?</p>
+            <h1 className="text-xl font-bold text-gray-800">Günaydın!</h1>
+            <p className="text-sm text-gray-600">Bugün ne pişiriyorsunuz?</p>
           </div>
           <Link href="/profile">
             <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center cursor-pointer">
@@ -52,14 +62,14 @@ export default function DashboardPage() {
           <div className="bg-orange-200 rounded-2xl p-4 shadow-sm border border-gray-100 mb-6 cursor-pointer">
             <div className="flex items-center gap-3 text-black">
               <i className="ri-search-line text-xl"></i>
-              <span>Search recipes or ingredients...</span>
+              <span>Tarif veya malzeme ara...</span>
             </div>
           </div>
         </Link>
 
         {/* Categories */}
         <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Browse Categories</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Kategorileri Keşfedin</h2>
           <div className="grid grid-cols-2 gap-4">
             {categories.map((category) => (
               <div key={category.name} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
@@ -75,10 +85,10 @@ export default function DashboardPage() {
         {/* Recent Recipes */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-800">Recent Recipes</h2>
+            <h2 className="text-lg font-semibold text-gray-800">Son Tarifler</h2>
             <Link href="/recipes">
               <button className="text-green-600 text-sm font-medium cursor-pointer">
-                View All
+                Tümünü Gör
               </button>
             </Link>
           </div>
@@ -115,15 +125,15 @@ export default function DashboardPage() {
           <Link href="/search">
             <div className="bg-green-500 rounded-2xl p-4 text-white cursor-pointer">
               <i className="ri-search-line text-2xl mb-2 block"></i>
-              <h3 className="font-semibold">Find Recipe</h3>
-              <p className="text-sm opacity-90">Search by ingredients</p>
+              <h3 className="font-semibold">Tarif Bul</h3>
+              <p className="text-sm opacity-90">Malzemelere göre ara</p>
             </div>
           </Link>
           <Link href="/recipes">
             <div className="bg-yellow-400 rounded-2xl p-4 text-black cursor-pointer">
               <i className="ri-add-line text-2xl mb-2 block"></i>
-              <h3 className="font-semibold">Add Recipe</h3>
-              <p className="text-sm opacity-80">Save your creation</p>
+              <h3 className="font-semibold">Tarif Ekle</h3>
+              <p className="text-sm opacity-80">Yaratımınızı kaydedin</p>
             </div>
           </Link>
         </div>

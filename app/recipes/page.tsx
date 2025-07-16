@@ -4,8 +4,18 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import BottomNavigation from '../../components/BottomNavigation';
+import { useLanguage } from '../../lib/LanguageContext';
 
 export default function RecipesPage() {
+  let t;
+  try {
+    const languageContext = useLanguage();
+    t = languageContext.t;
+  } catch (error) {
+    // Fallback to Turkish translations if context is not available
+    const { translations } = require('../../lib/translations');
+    t = translations.tr;
+  }
   const [activeTab, setActiveTab] = useState('saved');
   const [showAddForm, setShowAddForm] = useState(false);
 
@@ -63,7 +73,7 @@ export default function RecipesPage() {
       <header className="bg-white shadow-sm">
         <div className="max-w-md mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-bold text-gray-800">My Recipes</h1>
+            <h1 className="text-xl font-bold text-gray-800">{t.recipes.title}</h1>
             <button
               onClick={() => setShowAddForm(true)}
               className="w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center hover:bg-green-600 cursor-pointer"
@@ -80,7 +90,7 @@ export default function RecipesPage() {
                 activeTab === 'saved' ? 'bg-green-500 text-white' : 'text-gray-600'
               }`}
             >
-              Saved ({savedRecipes.length})
+              Kaydedilen ({savedRecipes.length})
             </button>
             <button
               onClick={() => setActiveTab('my')}
@@ -88,7 +98,7 @@ export default function RecipesPage() {
                 activeTab === 'my' ? 'bg-green-500 text-white' : 'text-gray-600'
               }`}
             >
-              My Recipes ({myRecipes.length})
+              Tariflerim ({myRecipes.length})
             </button>
           </div>
         </div>
@@ -162,18 +172,18 @@ export default function RecipesPage() {
               <i className="ri-book-open-line text-2xl text-gray-400"></i>
             </div>
             <h3 className="text-lg font-semibold text-gray-800 mb-2">
-              {activeTab === 'saved' ? 'No saved recipes yet' : 'No recipes created yet'}
+              {activeTab === 'saved' ? 'Henüz kaydedilen tarif yok' : 'Henüz tarif oluşturulmadı'}
             </h3>
             <p className="text-gray-600 mb-6">
               {activeTab === 'saved'
-                ? 'Start exploring and save your favorite recipes!'
-                : 'Create your first recipe and share it with the community!'}
+                ? 'Keşfetmeye başlayın ve favori tariflerinizi kaydedin!'
+                : 'İlk tarifinizi oluşturun ve toplulukla paylaşın!'}
             </p>
             <button
               onClick={() => activeTab === 'saved' ? null : setShowAddForm(true)}
               className="bg-green-500 text-white px-6 py-3 rounded-full font-medium hover:bg-green-600 whitespace-nowrap cursor-pointer"
             >
-              {activeTab === 'saved' ? 'Explore Recipes' : 'Add Recipe'}
+              {activeTab === 'saved' ? 'Tarifleri Keşfet' : 'Tarif Ekle'}
             </button>
           </div>
         )}
@@ -184,7 +194,7 @@ export default function RecipesPage() {
         <div className="fixed inset-0 bg-black/50 flex items-end z-50">
           <div className="bg-white rounded-t-3xl w-full max-w-md mx-auto p-6 max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-800">Add New Recipe</h2>
+              <h2 className="text-xl font-bold text-gray-800">Yeni Tarif Ekle</h2>
               <button
                 onClick={() => setShowAddForm(false)}
                 className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 cursor-pointer"
@@ -195,28 +205,28 @@ export default function RecipesPage() {
 
             <form className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Recipe Name</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Tarif Adı</label>
                 <input
                   type="text"
-                  placeholder="Enter recipe name"
+                  placeholder="Tarif adını girin"
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Prep Time</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Hazırlık Süresi</label>
                   <input
                     type="text"
-                    placeholder="20 min"
+                    placeholder="20 dk"
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Zorluk</label>
                   <div className="relative">
                     <button className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-left pr-8 cursor-pointer">
-                      Easy
+                      Kolay
                     </button>
                     <i className="ri-arrow-down-s-line absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                   </div>
@@ -224,18 +234,18 @@ export default function RecipesPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Ingredients</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Malzemeler</label>
                 <textarea
-                  placeholder="List your ingredients..."
+                  placeholder="Malzemelerinizi listeleyin..."
                   rows={3}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
                 ></textarea>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Instructions</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Hazırlanışı</label>
                 <textarea
-                  placeholder="Describe the cooking steps..."
+                  placeholder="Pişirme adımlarını açıklayın..."
                   rows={4}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
                 ></textarea>
@@ -245,7 +255,7 @@ export default function RecipesPage() {
                 type="submit"
                 className="w-full bg-green-500 text-white py-3 px-4 rounded-xl font-medium hover:bg-green-600 whitespace-nowrap cursor-pointer"
               >
-                Save Recipe
+                Tarifi Kaydet
               </button>
             </form>
           </div>

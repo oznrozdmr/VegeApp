@@ -4,8 +4,18 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { signIn } from "next-auth/react";
+import { useLanguage } from '../../lib/LanguageContext';
 
 export default function AuthPage() {
+  let t;
+  try {
+    const languageContext = useLanguage();
+    t = languageContext.t;
+  } catch (error) {
+    // Fallback to Turkish translations if context is not available
+    const { translations } = require('../../lib/translations');
+    t = translations.tr;
+  }
   const [isLogin, setIsLogin] = useState(true);
 
   return (
@@ -36,7 +46,7 @@ export default function AuthPage() {
                 isLogin ? 'bg-green-500 text-white' : 'text-gray-600 hover:text-gray-800'
               }`}
             >
-              Sign In
+              {t.auth.signIn}
             </button>
             <button
               onClick={() => setIsLogin(false)}
@@ -44,12 +54,12 @@ export default function AuthPage() {
                 !isLogin ? 'bg-green-500 text-white' : 'text-gray-600 hover:text-gray-800'
               }`}
             >
-              Sign Up
+              {t.auth.signUp}
             </button>
           </div>
 
           <h2 className="text-2xl font-bold text-gray-800 text-center mb-8">
-            {isLogin ? 'Welcome Back!' : 'Join VegeApp'}
+            {isLogin ? 'Hoş Geldiniz!' : 'VegeApp\'e Katılın'}
           </h2>
 
                     {/* Email Form */}
@@ -57,7 +67,7 @@ export default function AuthPage() {
             <div>
               <input
                 type="email"
-                placeholder="Email address"
+                placeholder={t.auth.email}
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 required
               />
@@ -65,7 +75,7 @@ export default function AuthPage() {
             <div>
               <input
                 type="password"
-                placeholder="Password"
+                placeholder={t.auth.password}
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 required
               />
@@ -74,7 +84,7 @@ export default function AuthPage() {
               <div>
                 <input
                   type="password"
-                  placeholder="Confirm password"
+                  placeholder="Şifre Onayla"
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   required
                 />
@@ -86,7 +96,7 @@ export default function AuthPage() {
                 type="button"
                 className="w-full bg-green-500 text-white py-3 mt-4 px-4 rounded-xl font-medium mb-4 hover:bg-green-600 transition-colors whitespace-nowrap cursor-pointer"
               >
-                {isLogin ? 'Sign In' : 'Create Account'}
+                {isLogin ? t.auth.signIn : t.auth.createAccount}
               </button>
             </Link>
           </form>
@@ -94,7 +104,7 @@ export default function AuthPage() {
           {isLogin && (
             <div className="text-center mt-4 mb-4">
               <button className="text-green-600 hover:text-green-700 text-sm cursor-pointer">
-                Forgot your password?
+                {t.auth.forgotPassword}
               </button>
             </div>
           )}
@@ -109,11 +119,11 @@ export default function AuthPage() {
                     <div className="space-y-3 mb-6">
             <button className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-3 whitespace-nowrap cursor-pointer" onClick={() => signIn("google")}>
               <i className="ri-facebook-fill text-xl"></i>
-              Continue with Facebook
+              Facebook ile Devam Et
             </button>
             <button className="w-full bg-red-500 text-white py-3 px-4 rounded-xl font-medium hover:bg-red-600 transition-colors flex items-center justify-center gap-3 whitespace-nowrap cursor-pointer" onClick={() => signIn("google")}>
               <i className="ri-google-fill text-xl"></i>
-              Continue with Google
+              {t.auth.signInWithGoogle}
             </button>
           </div>
 

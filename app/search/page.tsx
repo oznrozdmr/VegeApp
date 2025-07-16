@@ -4,8 +4,18 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import BottomNavigation from '../../components/BottomNavigation';
+import { useLanguage } from '../../lib/LanguageContext';
 
 export default function SearchPage() {
+  let t;
+  try {
+    const languageContext = useLanguage();
+    t = languageContext.t;
+  } catch (error) {
+    // Fallback to Turkish translations if context is not available
+    const { translations } = require('../../lib/translations');
+    t = translations.tr;
+  }
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>(['tomatoes', 'basil']);
   const [conversionType, setConversionType] = useState('vegan');
@@ -142,7 +152,7 @@ export default function SearchPage() {
                 <i className="ri-arrow-left-line text-xl text-gray-600"></i>
               </button>
             </Link>
-            <h1 className="text-xl font-bold text-gray-800">Recipe Search</h1>
+            <h1 className="text-xl font-bold text-gray-800">{t.search.title}</h1>
           </div>
 
           {/* Search Input */}
@@ -151,7 +161,7 @@ export default function SearchPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search recipes or ingredients..."
+              placeholder={t.search.placeholder}
               className="w-full px-4 py-3 pl-12 bg-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
             />
             <i className="ri-search-line absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
@@ -162,7 +172,7 @@ export default function SearchPage() {
       <div className="max-w-md mx-auto px-4 py-6">
         {/* Conversion Type */}
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3">Convert to:</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-3">Dönüştür:</h2>
           <div className="flex gap-3">
             <button
               onClick={() => handleConversionChange('vegan')}
@@ -190,7 +200,7 @@ export default function SearchPage() {
         {/* Selected Ingredients */}
         {selectedIngredients.length > 0 && (
           <div className="mb-6">
-            <h3 className="text-md font-semibold text-gray-800 mb-3">Selected Ingredients:</h3>
+            <h3 className="text-md font-semibold text-gray-800 mb-3">Seçilen Malzemeler:</h3>
             <div className="flex flex-wrap gap-2">
               {selectedIngredients.map((ingredient) => (
                 <span
@@ -212,7 +222,7 @@ export default function SearchPage() {
 
         {/* Popular Ingredients */}
         <div className="mb-8">
-          <h3 className="text-md font-semibient text-gray-800 mb-3">Popular Ingredients:</h3>
+          <h3 className="text-md font-semibold text-gray-800 mb-3">Popüler Malzemeler:</h3>
           <div className="flex flex-wrap gap-2">
             {popularIngredients.map((ingredient) => (
               <button
@@ -234,7 +244,7 @@ export default function SearchPage() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-800">
-              Recipe Results ({searchResults.length})
+              Tarif Sonuçları ({searchResults.length})
             </h2>
             <div className="flex gap-2">
               <button className="p-2 hover:bg-gray-100 rounded-full cursor-pointer">

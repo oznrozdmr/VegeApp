@@ -3,15 +3,25 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useLanguage } from '../lib/LanguageContext';
 
 export default function BottomNavigation() {
   const pathname = usePathname();
+  let t;
+  try {
+    const languageContext = useLanguage();
+    t = languageContext.t;
+  } catch (error) {
+    // Fallback to Turkish translations if context is not available
+    const { translations } = require('../lib/translations');
+    t = translations.tr;
+  }
 
   const navItems = [
-    { href: '/dashboard', icon: 'ri-home-line', label: 'Home' },
-    { href: '/search', icon: 'ri-search-line', label: 'Search' },
-    { href: '/recipes', icon: 'ri-book-open-line', label: 'Recipes' },
-    { href: '/profile', icon: 'ri-user-line', label: 'Profile' },
+    { href: '/dashboard', icon: 'ri-home-line', label: t.navigation.home },
+    { href: '/search', icon: 'ri-search-line', label: t.navigation.search },
+    { href: '/recipes', icon: 'ri-book-open-line', label: t.navigation.recipes },
+    { href: '/profile', icon: 'ri-user-line', label: t.navigation.profile },
   ];
 
   return (

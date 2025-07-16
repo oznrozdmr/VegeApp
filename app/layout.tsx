@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Pacifico } from "next/font/google";
 import "./globals.css";
+import ClientLanguageProvider from "../components/ClientLanguageProvider";
 
 const pacifico = Pacifico({
   weight: '400',
@@ -29,7 +30,9 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${pacifico.variable} antialiased`}
       >
-        {children}
+        <ClientLanguageProvider>
+          {children}
+        </ClientLanguageProvider>
       </body>
     </html>
   );

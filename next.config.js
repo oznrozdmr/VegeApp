@@ -1,13 +1,10 @@
-// Converted from next.config.ts to next.config.js
-
+/** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "export",
-  images: {
-    unoptimized: true,
+  i18n: {
+    locales: ['tr', 'en'],
+    defaultLocale: 'tr',
+    localeDetection: false,
   },
-  typescript: {
-    // ignoreBuildErrors: true,
-  },
-};
+}
 
-module.exports = nextConfig; 
+module.exports = nextConfig 
