@@ -266,7 +266,7 @@ export default function SearchPage() {
             <div className="space-y-4">
               {searchResults.map((recipe) => (
                 <Link key={recipe.id} href={`/recipe/${recipe.id}`}>
-                  <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow">
+                  <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow mb-4">
                     <img
                       src={recipe.image}
                       alt={recipe.title}

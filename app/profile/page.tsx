@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import BottomNavigation from '../../components/BottomNavigation';
 import { useLanguage } from '../../lib/LanguageContext';
@@ -20,6 +20,9 @@ export default function ProfilePage() {
   const [showSettings, setShowSettings] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const stats = [
     { label: t.profile.stats.recipesSaved, value: '24', icon: 'ri-heart-line' },
@@ -33,6 +36,38 @@ export default function ProfilePage() {
     { title: t.profile.achievements.veganExplorer, icon: 'ri-plant-line', earned: false },
     { title: t.profile.achievements.cookingStreak, icon: 'ri-fire-line', earned: false }
   ];
+
+  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setProfilePhoto(result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handlePhotoClick = () => {
+    setShowPhotoOptions(true);
+  };
+
+  const handleTakePhoto = () => {
+    // In a real app, this would open camera
+    alert('Kamera özelliği yakında gelecek!');
+    setShowPhotoOptions(false);
+  };
+
+  const handleChoosePhoto = () => {
+    fileInputRef.current?.click();
+    setShowPhotoOptions(false);
+  };
+
+  const handleRemovePhoto = () => {
+    setProfilePhoto(null);
+    setShowPhotoOptions(false);
+  };
 
   return (
     <div className={`min-h-screen pb-20 ${darkModeEnabled ? 'bg-gray-900 text-white' : 'bg-gray-50'}`}>
@@ -58,8 +93,24 @@ export default function ProfilePage() {
         <div className={`${darkModeEnabled ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-sm border mb-6`}>
           <div className="flex items-center gap-4 mb-4">
             <div className="relative">
-              <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center">
-                <span className="text-2xl font-bold text-white">JD</span>
+              <div 
+                onClick={handlePhotoClick}
+                className="relative w-20 h-20 rounded-full overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+              >
+                {profilePhoto ? (
+                  <img
+                    src={profilePhoto}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                    <span className="text-2xl font-bold text-white">JD</span>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <i className="ri-camera-line text-white text-lg"></i>
+                </div>
               </div>
               <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
                 <i className="ri-vip-crown-line text-xs text-white"></i>
@@ -243,6 +294,84 @@ export default function ProfilePage() {
                 </Link>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Photo Options Modal */}
+      {showPhotoOptions && (
+        <div 
+          className="fixed inset-0 bg-black/50 flex items-end z-50"
+          onClick={() => setShowPhotoOptions(false)}
+        >
+          <div 
+            className={`${darkModeEnabled ? 'bg-gray-800' : 'bg-white'} rounded-t-3xl w-full max-w-md mx-auto p-6`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className={`text-xl font-bold ${darkModeEnabled ? 'text-white' : 'text-gray-800'}`}>Profil Fotoğrafı</h2>
+              <button
+                onClick={() => setShowPhotoOptions(false)}
+                className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer ${
+                  darkModeEnabled 
+                    ? 'bg-gray-700 hover:bg-gray-600' 
+                    : 'bg-gray-100 hover:bg-gray-200'
+                }`}
+              >
+                <i className={`ri-close-line ${darkModeEnabled ? 'text-gray-300' : 'text-gray-600'}`}></i>
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <button
+                onClick={handleTakePhoto}
+                className="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-gray-50 cursor-pointer"
+              >
+                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                  <i className="ri-camera-line text-blue-500"></i>
+                </div>
+                <div className="flex-1 text-left">
+                  <h3 className="font-semibold text-gray-800">Fotoğraf Çek</h3>
+                  <p className="text-sm text-gray-600">Kamera ile yeni fotoğraf çek</p>
+                </div>
+              </button>
+
+              <button
+                onClick={handleChoosePhoto}
+                className="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-gray-50 cursor-pointer"
+              >
+                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                  <i className="ri-image-add-line text-green-500"></i>
+                </div>
+                <div className="flex-1 text-left">
+                  <h3 className="font-semibold text-gray-800">Galeriden Seç</h3>
+                  <p className="text-sm text-gray-600">Galeriden fotoğraf seç</p>
+                </div>
+              </button>
+
+              {profilePhoto && (
+                <button
+                  onClick={handleRemovePhoto}
+                  className="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-red-50 cursor-pointer"
+                >
+                  <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                    <i className="ri-delete-bin-line text-red-500"></i>
+                  </div>
+                  <div className="flex-1 text-left">
+                    <h3 className="font-semibold text-gray-800">Fotoğrafı Kaldır</h3>
+                    <p className="text-sm text-gray-600">Mevcut fotoğrafı kaldır</p>
+                  </div>
+                </button>
+              )}
+            </div>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoUpload}
+              className="hidden"
+            />
           </div>
         </div>
       )}

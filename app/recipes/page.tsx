@@ -242,7 +242,7 @@ export default function RecipesPage() {
         <div className="space-y-4">
           {currentRecipes.map((recipe) => (
             <Link key={recipe.id} href={`/recipe/${recipe.id}`}>
-              <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow">
+              <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow mb-4">
                 <div className="relative">
                   <img
                     src={recipe.image}
